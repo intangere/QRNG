@@ -19,7 +19,7 @@ class QRNG(object):
 
   def expandNumbers(self, number):
     expanded = int(number) ** 10
-    expanded = '{0:f}'.format(expanded * time.time()).replace('.', '')
+    expanded = '{0:f}'.format(expanded * time.time()).replace('.', '')[:-6]
     return expanded
 
   def loop(self):
@@ -29,6 +29,7 @@ class QRNG(object):
           numbers = self.expandNumbers(numbers)
           self.log("RESULT", "Random number is %s" % numbers)
           self.bit1, self.bit2 = 0, 0
+          self.write(numbers)
 
       if GPIO.input(12) == True:
         if self.bit1 == 0:
@@ -37,5 +38,12 @@ class QRNG(object):
         elif self.bit2 == 0:
           self.bit2 = time.time()
           self.log("INFO", "Bit 2 recived %s" % self.bit2)
+
+  def write(self, numbers):
+    f = open('bits.txt', 'a+')
+    f.write(numbers)
+    f.close()
+
+
 qrng = QRNG()
 qrng.loop()
