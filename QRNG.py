@@ -1,4 +1,5 @@
 import RPi.GPIO as GPIO
+import binascii
 import time
 import re
 
@@ -25,7 +26,7 @@ class QRNG(object):
     return expanded
 
   def xor(self, numbers):
-    if not numbers % 2 == 0:
+    if not len(numbers) % 2 == 0:
       numbers = ''.join([numbers, '0'])
     for pos, bit in enumerate(numbers):
       next_bit = numbers[pos+1]
@@ -39,7 +40,7 @@ class QRNG(object):
 
   def toBin(self, number):
     binstr = ""
-    for n in expanded
+    for n in number:
       binstr = ''.join([binstr, str(bin(int(n))[2:])])
     return binstr
 
@@ -52,28 +53,23 @@ class QRNG(object):
     random_string = ""
     segments = re.compile('(..)').findall(numbers)
     for pair in segments:
-      char = pair.decode("hex")
+      char = binascii.unhexlify(pair)
       if char.isalnum():
-        random_string = random_string + char.lower()
+        random_string = random_string + char.decode('utf-8').lower()
       else:
-        char = pair[::-1].decode("hex")
+        char = binascii.unhexlify(pair[::-1])
         if char.isalnum():
-          random_string = random_string + char.lower()        
+          random_string = random_string + char.decode('utf-8').lower()        
     return random_string
 
   def loop(self):
     while True:
       if self.bit1 != 0 and self.bit2 != 0:
           numbers = self.formalizeNumbers()
-          print(numbers)
           expanded = self.expandNumbers(numbers)
-          print(expanded)
           binnums = self.toBin(expanded)
-          print(binnums)
           xorred = self.xor(binnums)
-          print(xorred)
           hexed = self.hexilify(xorred)
-          print(hexed)
           random_string = self.hexToChars(hexed)
           self.log("RESULT", "Random number is %s" % random_string)
           self.bit1, self.bit2 = 0, 0
