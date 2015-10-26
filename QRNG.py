@@ -11,10 +11,21 @@ class QRNG(object):
   def log(self, info, message):
     print("[%s]: %s" % (info ,message))
 
+  def formalizeNumbers(self):
+    num1 = str(self.bit2).replace('.', '')
+    num2 = str(self.bit1).replace('.', '')
+    res = "%s%s" % (num1, num2)
+    return res
+
+  def expandNumbers(self, number):
+    res += res[::-1]
+    return res
+  
   def loop(self):
     while True:
       if self.bit1 != 0 and self.bit2 != 0:
-          number = (self.bit2 - self.bit1) ** 2
+          number = self.formalizeNumbers()
+
           self.log("RESULT", "Random number is %s" % number)
           self.bit1, self.bit2 = 0, 0
 
