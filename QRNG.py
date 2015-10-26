@@ -1,5 +1,7 @@
 import RPi.GPIO as GPIO
 import time
+import re
+
 class QRNG(object):
   def __init__(self):
     GPIO.setmode(GPIO.BOARD)
@@ -22,14 +24,52 @@ class QRNG(object):
     expanded = '{0:f}'.format(expanded * time.time()).replace('.', '')[:-6]
     return expanded
 
+  def xor(self, numbers):
+    if not numbers % 2 == 0:
+      numbers = ''.join([numbers, '0'])
+    for pos, bit in enumerate(numbers):
+      next_bit = numbers[pos+1]
+      result = int(bit) ^ int(next_bit) 
+      numbers = self.insert(numbers, str(result), pos+1)
+      numbers = numbers + str(result)
+    return numbers + numbers[::-1]
+
+  def insert(self, source, insert, pos):
+    return source[:pos]+insert+source[pos:]
+
+  def toBin(self, number):
+    return "%08d" % int(bin(number)[2:])
+
+  def hexilify(self, number):
+    return ''.join(hex(int(a, 2))[2:] for a in number.split()).replace("L", "")
+
+  def hexToChars(self, numbers):
+    if not len(numbers) % 2 == 0:
+      numbers = numbers+"0"
+    random_string = ""
+    segments = re.compile('(..)').findall(numbers)
+    for pair in segments:
+      char = pair.decode("hex")
+      if char.isalnum():
+        random_string = random_string + char.lower()
+      else:
+        char = pair[::-1].decode("hex")
+        if char.isalnum():
+          random_string = random_string + char.lower()        
+    return random_string
+
   def loop(self):
     while True:
       if self.bit1 != 0 and self.bit2 != 0:
           numbers = self.formalizeNumbers()
-          numbers = self.expandNumbers(numbers)
-          self.log("RESULT", "Random number is %s" % numbers)
+          expanded = self.expandNumbers(numbers)
+          binnums = self.toBin(expanded)
+          xorred = self.xor(binnums)
+          hexed = self.hexilify(xorred)
+          random_string = self.hexToChars(hexed)
+          self.log("RESULT", "Random number is %s" % random_string)
           self.bit1, self.bit2 = 0, 0
-          self.write(numbers)
+          self.write(random_string)
 
       if GPIO.input(12) == True:
         if self.bit1 == 0:
