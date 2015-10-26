@@ -88,6 +88,5 @@ class QRNG(object):
     f.write(numbers)
     f.close()
 
-
 qrng = QRNG()
 qrng.loop()
