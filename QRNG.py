@@ -18,8 +18,11 @@ class QRNG(object):
     return res
 
   def expandNumbers(self, number):
-    res += number[::-1]
-    return res
+    new_numbers = ""
+    for i, x in enumerate(number):
+      new_numbers.append(number[i])
+      new_numbers.append(number[::-1][i])
+    return number
 
   def loop(self):
     while True:
