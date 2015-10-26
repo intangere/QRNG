@@ -19,6 +19,7 @@ class QRNG(object):
 
   def expandNumbers(self, number):
     expanded = int(number) ** 10
+    expanded = str(expanded * time.time()).replace('.', '')
     return expanded
 
   def loop(self):
