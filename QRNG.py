@@ -38,7 +38,10 @@ class QRNG(object):
     return source[:pos]+insert+source[pos:]
 
   def toBin(self, number):
-    return int(bin(number)[2:])
+    binstr = ""
+    for n in expanded
+      binstr = ''.join([binstr, str(bin(int(n))[2:])])
+    return binstr
 
   def hexilify(self, number):
     return ''.join(hex(int(a, 2))[2:] for a in number.split()).replace("L", "")
@@ -62,15 +65,15 @@ class QRNG(object):
     while True:
       if self.bit1 != 0 and self.bit2 != 0:
           numbers = self.formalizeNumbers()
-          print numbers
+          print(numbers)
           expanded = self.expandNumbers(numbers)
-          print expanded
-          binnums = self.toBin(int(expanded))
-          print binnums
+          print(expanded)
+          binnums = self.toBin(expanded)
+          print(binnums)
           xorred = self.xor(binnums)
-          print xorred
+          print(xorred)
           hexed = self.hexilify(xorred)
-          print hexed
+          print(hexed)
           random_string = self.hexToChars(hexed)
           self.log("RESULT", "Random number is %s" % random_string)
           self.bit1, self.bit2 = 0, 0
