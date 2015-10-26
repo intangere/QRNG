@@ -18,15 +18,15 @@ class QRNG(object):
     return res
 
   def expandNumbers(self, number):
-    res += res[::-1]
+    res += number[::-1]
     return res
-  
+
   def loop(self):
     while True:
       if self.bit1 != 0 and self.bit2 != 0:
-          number = self.formalizeNumbers()
-
-          self.log("RESULT", "Random number is %s" % number)
+          numbers = self.formalizeNumbers()
+          numbers = self.expandNumbers(numbers)
+          self.log("RESULT", "Random number is %s" % numbers)
           self.bit1, self.bit2 = 0, 0
 
       if GPIO.input(12) == True:
